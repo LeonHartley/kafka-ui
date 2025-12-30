@@ -87,11 +87,11 @@ model KafkaAcl {
   namePatternType: KafkaAclNamePatternType;
   principal: string;
   host: string;
-  operation:  KafkaAclOpeations;
+  operation:  KafkaAclOperations;
   permission: "ALLOW" | "DENY";
 }
 
-alias KafkaAclOpeations =
+alias KafkaAclOperations =
   "UNKNOWN"
   | "ALL"
   | "READ"
@@ -105,7 +105,8 @@ alias KafkaAclOpeations =
   | "ALTER_CONFIGS"
   | "IDEMPOTENT_WRITE"
   | "CREATE_TOKENS"
-  | "DESCRIBE_TOKENS";
+  | "DESCRIBE_TOKENS"
+  | "TWO_PHASE_COMMIT";
 
 enum KafkaAclResourceType {
   UNKNOWN,
