@@ -1,7 +1,6 @@
 package io.kafbat.ui.mapper;
 
 import io.kafbat.ui.api.model.ConsumerGroupLag;
-import io.kafbat.ui.api.model.ConsumerGroupState;
 import io.kafbat.ui.model.BrokerDTO;
 import io.kafbat.ui.model.ConsumerGroupDTO;
 import io.kafbat.ui.model.ConsumerGroupDetailsDTO;
@@ -20,6 +19,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.kafka.common.GroupState;
 import org.apache.kafka.common.Node;
 import org.apache.kafka.common.TopicPartition;
 
@@ -106,7 +106,7 @@ public class ConsumerGroupMapper {
     return new BrokerDTO().host(node.host()).id(node.id()).port(node.port());
   }
 
-  private static ConsumerGroupStateDTO mapConsumerGroupState(org.apache.kafka.common.ConsumerGroupState state) {
+  private static ConsumerGroupStateDTO mapConsumerGroupState(GroupState state) {
     return switch (state) {
       case DEAD -> ConsumerGroupStateDTO.DEAD;
       case EMPTY -> ConsumerGroupStateDTO.EMPTY;

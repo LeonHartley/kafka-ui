@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 import lombok.Builder;
 import lombok.Data;
 import org.apache.kafka.clients.admin.ConsumerGroupDescription;
-import org.apache.kafka.common.ConsumerGroupState;
+import org.apache.kafka.common.GroupState;
 import org.apache.kafka.common.Node;
 import org.apache.kafka.common.TopicPartition;
 
@@ -26,7 +26,7 @@ public class InternalConsumerGroup {
   private final Long consumerLag;
   private final Integer topicNum;
   private final String partitionAssignor;
-  private final ConsumerGroupState state;
+  private final GroupState state;
   private final Node coordinator;
 
   @Data
@@ -46,7 +46,7 @@ public class InternalConsumerGroup {
     var builder = InternalConsumerGroup.builder();
     builder.groupId(description.groupId());
     builder.simple(description.isSimpleConsumerGroup());
-    builder.state(description.state());
+    builder.state(description.groupState());
     builder.partitionAssignor(description.partitionAssignor());
     Collection<InternalMember> internalMembers = initInternalMembers(description);
     builder.members(internalMembers);

@@ -17,6 +17,8 @@ import org.apache.kafka.clients.admin.ConsumerGroupDescription;
 import org.apache.kafka.clients.admin.MemberAssignment;
 import org.apache.kafka.clients.admin.MemberDescription;
 import org.apache.kafka.clients.admin.TopicDescription;
+import org.apache.kafka.common.GroupState;
+import org.apache.kafka.common.GroupType;
 import org.apache.kafka.common.Node;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.TopicPartitionInfo;
@@ -81,8 +83,12 @@ class InferredMetricsScraperTest {
                                 )
                             ),
                             null,
-                            org.apache.kafka.common.ConsumerGroupState.STABLE,
-                            node1
+                            GroupType.CLASSIC,
+                            GroupState.STABLE,
+                            node1,
+                            Set.of(),
+                            Optional.empty(),
+                            Optional.empty()
                         ),
                         Map.of(new TopicPartition("t1", 0), 150L)
                     )

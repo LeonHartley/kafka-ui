@@ -505,7 +505,7 @@ public class ReactiveAdminClient implements Closeable {
           .map(conf -> conf.getOrDefault(topicName, List.of()))
           .flatMap(currentConfigs -> incrementalAlterConfig(topicName, currentConfigs, configs));
     } else {
-      return alterConfig(topicName, configs);
+      throw new UnsupportedVersionException("Kafka version does not support INCREMENTAL_ALTER_CONFIGS");
     }
   }
 
@@ -747,16 +747,6 @@ public class ReactiveAdminClient implements Closeable {
             new ConfigResource(ConfigResource.Type.TOPIC, topicName),
             Stream.concat(configsToDelete, configsToSet).toList()
         )).all());
-  }
-
-  @SuppressWarnings("deprecation")
-  private Mono<Void> alterConfig(String topicName, Map<String, String> configs) {
-    List<ConfigEntry> configEntries = configs.entrySet().stream()
-        .flatMap(cfg -> Stream.of(new ConfigEntry(cfg.getKey(), cfg.getValue())))
-        .collect(toList());
-    Config config = new Config(configEntries);
-    var topicResource = new ConfigResource(ConfigResource.Type.TOPIC, topicName);
-    return toMono(client.alterConfigs(Map.of(topicResource, config)).all());
   }
 
   /**

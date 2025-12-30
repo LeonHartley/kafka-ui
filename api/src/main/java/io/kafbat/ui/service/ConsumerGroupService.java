@@ -40,7 +40,7 @@ import org.apache.kafka.clients.admin.ConsumerGroupDescription;
 import org.apache.kafka.clients.admin.ConsumerGroupListing;
 import org.apache.kafka.clients.admin.OffsetSpec;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.common.ConsumerGroupState;
+import org.apache.kafka.common.GroupState;
 import org.apache.kafka.common.TopicPartition;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -122,13 +122,13 @@ public class ConsumerGroupService {
       String topic,
       Map<TopicPartition, Long> endOffsets) {
 
-    Set<ConsumerGroupState> inactiveStates = Set.of(
-        ConsumerGroupState.DEAD,
-        ConsumerGroupState.EMPTY
+    Set<GroupState> inactiveStates = Set.of(
+        GroupState.DEAD,
+        GroupState.EMPTY
     );
 
     Map<Boolean, List<ConsumerGroupDescription>> partitioned = groups.stream().collect(
-        Collectors.partitioningBy((g) -> !inactiveStates.contains(g.state()))
+        Collectors.partitioningBy((g) -> !inactiveStates.contains(g.groupState()))
     );
 
     List<ConsumerGroupDescription> stable = partitioned.get(true).stream()
@@ -291,7 +291,7 @@ public class ConsumerGroupService {
       }
       case STATE -> {
         ToIntFunction<ConsumerGroupListing> statesPriorities =
-            cg -> switch (cg.state().orElse(ConsumerGroupState.UNKNOWN)) {
+            cg -> switch (cg.groupState().orElse(GroupState.UNKNOWN)) {
                   case STABLE -> 0;
                   case COMPLETING_REBALANCE -> 1;
                   case PREPARING_REBALANCE -> 2;
@@ -300,6 +300,7 @@ public class ConsumerGroupService {
                   case UNKNOWN -> 5;
                   case ASSIGNING -> 6;
                   case RECONCILING -> 7;
+                  case NOT_READY -> 8;
                 };
         var comparator = Comparator.comparingInt(statesPriorities);
         yield loadDescriptionsByListings(ac, groups, comparator, pageNum, perPage, sortOrderDto);
@@ -468,6 +469,7 @@ public class ConsumerGroupService {
     props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
     props.put(ConsumerConfig.ALLOW_AUTO_CREATE_TOPICS_CONFIG, "false");
     props.putAll(properties);
+    props.putIfAbsent(ConsumerConfig.GROUP_PROTOCOL_CONFIG, "consumer");
 
     return new EnhancedConsumer(
         props,

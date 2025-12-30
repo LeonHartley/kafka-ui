@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -26,7 +27,8 @@ import org.apache.kafka.clients.admin.ConsumerGroupDescription;
 import org.apache.kafka.clients.admin.ConsumerGroupListing;
 import org.apache.kafka.clients.admin.MemberAssignment;
 import org.apache.kafka.clients.admin.MemberDescription;
-import org.apache.kafka.common.ConsumerGroupState;
+import org.apache.kafka.common.GroupState;
+import org.apache.kafka.common.GroupType;
 import org.apache.kafka.common.TopicPartition;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -65,7 +67,7 @@ class ConsumerGroupServiceTest {
         Stream.generate(() -> generate(
             List.of(new TopicPartition(topic, 0)),
             Map.of(new TopicPartition(topic, 0), 100L),
-            ConsumerGroupState.DEAD
+            GroupState.DEAD
         )).limit(10).collect(Collectors.toMap(
             ScrapedClusterState.ConsumerGroupState::group,
             s -> s
@@ -75,7 +77,7 @@ class ConsumerGroupServiceTest {
         Stream.generate(() -> generate(
             List.of(new TopicPartition(anotherTopic, 0)),
             Map.of(new TopicPartition(anotherTopic, 0), 100L),
-            ConsumerGroupState.DEAD
+            GroupState.DEAD
         )).limit(10).collect(Collectors.toMap(
             ScrapedClusterState.ConsumerGroupState::group,
             s -> s
@@ -85,7 +87,7 @@ class ConsumerGroupServiceTest {
         Stream.generate(() -> generate(
             List.of(new TopicPartition(topic, 0)),
             Map.of(new TopicPartition(topic, 0), 100L),
-            ConsumerGroupState.STABLE
+            GroupState.STABLE
         )).limit(10).collect(Collectors.toMap(
             ScrapedClusterState.ConsumerGroupState::group,
             s -> s
@@ -95,7 +97,7 @@ class ConsumerGroupServiceTest {
         Stream.generate(() -> generate(
             List.of(new TopicPartition(anotherTopic, 0)),
             Map.of(new TopicPartition(anotherTopic, 0), 100L),
-            ConsumerGroupState.STABLE
+            GroupState.STABLE
         )).limit(10).collect(Collectors.toMap(
             ScrapedClusterState.ConsumerGroupState::group,
             s -> s
@@ -187,7 +189,7 @@ class ConsumerGroupServiceTest {
   private ScrapedClusterState.ConsumerGroupState generate(
       List<TopicPartition> topicPartitions,
       Map<TopicPartition, Long> lastOffsets,
-      ConsumerGroupState state
+      GroupState state
   ) {
     return generate(topicPartitions, lastOffsets, state, 1);
   }
@@ -196,7 +198,7 @@ class ConsumerGroupServiceTest {
   private ScrapedClusterState.ConsumerGroupState generate(
       List<TopicPartition> topicPartitions,
       Map<TopicPartition, Long> lastOffsets,
-      ConsumerGroupState state,
+      GroupState state,
       long lagPerPartition
   ) {
     final String name = UUID.randomUUID().toString();
@@ -207,7 +209,7 @@ class ConsumerGroupServiceTest {
             Map.Entry::getValue
         ));
 
-    List<MemberDescription> members = state.equals(ConsumerGroupState.STABLE) ? List.of(
+    List<MemberDescription> members = state.equals(GroupState.STABLE) ? List.of(
         new MemberDescription(
             UUID.randomUUID().toString(),
             UUID.randomUUID().toString(),
@@ -222,8 +224,12 @@ class ConsumerGroupServiceTest {
             name,
             false,
             members, "",
+            GroupType.CLASSIC,
             state,
-            null
+            null,
+            Set.of(),
+            Optional.empty(),
+            Optional.empty()
         ), commited
     );
   }
@@ -258,7 +264,7 @@ class ConsumerGroupServiceTest {
                 new TopicPartition(topic, 1)
             ),
             endOffsets,
-            ConsumerGroupState.DEAD,
+            GroupState.DEAD,
             lagPerPartition
         )).limit(10).collect(Collectors.toMap(
             ScrapedClusterState.ConsumerGroupState::group,

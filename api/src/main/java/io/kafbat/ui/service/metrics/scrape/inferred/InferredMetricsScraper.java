@@ -189,10 +189,10 @@ public class InferredMetricsScraper {
     clusterState.getConsumerGroupsStates().forEach((groupName, state) -> {
       registry.gauge(
           "group_state",
-          "State of the consumer group, value = ordinal of org.apache.kafka.common.ConsumerGroupState",
+          "State of the consumer group, value = ordinal of org.apache.kafka.common.GroupState",
           List.of(GROUP_TAG),
           List.of(groupName),
-          state.description().state().ordinal()
+          state.description().groupState().ordinal()
       );
       registry.gauge(
           "group_member_count",

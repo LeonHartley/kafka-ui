@@ -6,7 +6,7 @@ import javax.annotation.Nullable;
 import lombok.Builder;
 import lombok.Value;
 import org.apache.kafka.clients.admin.ConsumerGroupDescription;
-import org.apache.kafka.common.ConsumerGroupState;
+import org.apache.kafka.common.GroupState;
 import org.apache.kafka.common.Node;
 import org.apache.kafka.common.TopicPartition;
 
@@ -20,7 +20,7 @@ public class InternalTopicConsumerGroup {
   Long consumerLag; //null means no committed offsets found for this group
   boolean isSimple;
   String partitionAssignor;
-  ConsumerGroupState state;
+  GroupState state;
   @Nullable
   Node coordinator;
 
@@ -40,7 +40,7 @@ public class InternalTopicConsumerGroup {
         .consumerLag(calculateConsumerLag(committedOffsets, endOffsets))
         .isSimple(g.isSimpleConsumerGroup())
         .partitionAssignor(g.partitionAssignor())
-        .state(g.state())
+        .state(g.groupState())
         .coordinator(g.coordinator())
         .build();
   }

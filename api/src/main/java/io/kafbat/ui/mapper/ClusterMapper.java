@@ -169,6 +169,7 @@ public interface ClusterMapper {
       case IDEMPOTENT_WRITE -> KafkaAclDTO.OperationEnum.IDEMPOTENT_WRITE;
       case CREATE_TOKENS -> KafkaAclDTO.OperationEnum.CREATE_TOKENS;
       case DESCRIBE_TOKENS -> KafkaAclDTO.OperationEnum.DESCRIBE_TOKENS;
+      case TWO_PHASE_COMMIT -> KafkaAclDTO.OperationEnum.TWO_PHASE_COMMIT;
       case ANY -> throw new IllegalArgumentException("ANY operation can be only part of filter");
       case UNKNOWN -> KafkaAclDTO.OperationEnum.UNKNOWN;
     };
